@@ -83,6 +83,7 @@ enum t_file_type
 const char* ft_name[];
 
 class Cmix_file;
+class Cmix_file_rd;
 
 class Ccc_file  
 {
@@ -92,9 +93,12 @@ public:
 	int open(unsigned int id, Cmix_file& mix_f);
 	int open(const string& name, Cmix_file& mix_f);
 	int open(const string& name);
+	int open(unsigned int id, Cmix_file_rd& mix_rd_f);
+	int open(const string& name, Cmix_file_rd& mix_rd_f);
 	void load(const Cvirtual_binary& d, int size = -1);
 	void load(const Ccc_file& f);
 	t_file_type get_file_type(bool fast = true);
+	t_file_type get_file_type_ext(bool fast = true);
 	int read();
 	int read(void* data, int size);
 	int extract(const string& name);

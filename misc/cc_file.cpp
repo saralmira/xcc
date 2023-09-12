@@ -52,6 +52,7 @@
 #include "xcc_file.h"
 #include "xcc_lmd_file.h"
 #include "xif_file.h"
+#include "mix_file_rd.h"
 
 const char* ft_name[] =
 {
@@ -152,9 +153,19 @@ Ccc_file::Ccc_file(bool read_on_open) :
 			return 0;
 	}
 
+	int Ccc_file::open(unsigned int id, Cmix_file_rd& mix_rd_f)
+	{
+		return open(id, static_cast<Cmix_file&>(mix_rd_f));
+	}
+
 	int Ccc_file::open(const string& name, Cmix_file& mix_f)
 	{
 		return open(Cmix_file::get_id(mix_f.get_game(), name), mix_f);
+	}
+
+	int Ccc_file::open(const string& name, Cmix_file_rd& mix_rd_f)
+	{
+		return open(Cmix_file_rd::get_id(mix_rd_f.get_game(), name), mix_rd_f);
 	}
 #endif
 
@@ -281,13 +292,11 @@ Ccc_file::Ccc_file(bool read_on_open) :
 		m_is_open = false;
 	}
 
-
-#ifndef NO_MIX_SUPPORT
-#ifndef NO_FT_SUPPORT
-	t_file_type Ccc_file::get_file_type(bool fast)
+	
+	t_file_type Ccc_file::get_file_type_ext(bool fast)
 	{
 		Cvirtual_binary data;
-		int size;
+		size_t size;
 		if (m_data.data())
 		{
 			data = m_data;
@@ -295,7 +304,32 @@ Ccc_file::Ccc_file(bool read_on_open) :
 		}
 		else
 		{
-			size = min<int>(m_size, 64 << 10);
+			size = min<size_t>(m_size, 64 << 10);
+			seek(0);
+			if (read(data.write_start(size), size))
+				return ft_unknown;
+			seek(0);
+		}
+		Cmix_file_rd mix_rd_f;
+		if (mix_rd_f.load(data, m_size), mix_rd_f.is_valid())
+			return ft_mix;
+		return ft_unknown;
+	}
+
+#ifndef NO_MIX_SUPPORT
+#ifndef NO_FT_SUPPORT
+	t_file_type Ccc_file::get_file_type(bool fast)
+	{
+		Cvirtual_binary data;
+		size_t size;
+		if (m_data.data())
+		{
+			data = m_data;
+			size = m_size;
+		}
+		else
+		{
+			size = min<size_t>(m_size, 64 << 10);
 			seek(0);
 			if (read(data.write_start(size), size))
 				return ft_unknown;

@@ -72,6 +72,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <AdditionalIncludeDirectories>..\misc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -148,6 +149,7 @@
     </ClCompile>
     <ClCompile Include="..\misc\mix_file.cpp">
     </ClCompile>
+    <ClCompile Include="..\misc\mix_file_rd.cpp" />
     <ClCompile Include="..\misc\mix_file_write.cpp">
     </ClCompile>
     <ClCompile Include="..\misc\mix_rg_edit.cpp">
@@ -279,6 +281,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\misc\mix_file_rd.h" />
     <ClInclude Include="..\misc\xif_key_r.h" />
     <ClInclude Include="..\misc\aud_decode.h" />
     <ClInclude Include="..\misc\aud_file.h" />

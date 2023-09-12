@@ -2,6 +2,7 @@
 
 #include <cc_file.h>
 #include <mix_file.h>
+#include <mix_file_rd.h>
 #include <palet.h>
 #include "palet_filter.h"
 

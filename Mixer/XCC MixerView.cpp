@@ -301,9 +301,21 @@ void CXCCMixerView::open_location_mix(const string& name)
 {
 	Cmix_file* mix_f = new Cmix_file;
 	if (mix_f->open(name))
+	{
 		delete mix_f;
+		mix_f = new Cmix_file_rd;
+		if (static_cast<Cmix_file_rd*>(mix_f)->open(name))
+		{
+			delete mix_f;
+		}
+		else
+		{
+			goto MPUSH;
+		}
+	}
 	else
 	{
+		MPUSH:
 		m_location.push(m_mix_f);
 		m_mix_f = mix_f;
 		m_mix_fname = name;
@@ -347,9 +359,21 @@ void CXCCMixerView::open_location_mix(int id)
 {
 	Cmix_file* mix_f = new Cmix_file;
 	if (mix_f->open(id, *m_mix_f))
+	{
 		delete mix_f;
+		mix_f = new Cmix_file_rd;
+		if (static_cast<Cmix_file_rd*>(mix_f)->open(id, *m_mix_f))
+		{
+			delete mix_f;
+		}
+		else
+		{
+			goto MPUSH;
+		}
+	}
 	else
 	{
+		MPUSH:
 		m_location.push(m_mix_f);
 		m_mix_f = mix_f;
 		update_list();
@@ -2622,6 +2646,16 @@ BOOL CXCCMixerView::OnIdle(LONG lCount)
 			{
 				e.ft = f.get_file_type();
 				e.size = f.get_size();
+
+				if (e.ft == ft_unknown)
+				{
+					Cfname fname = to_lower_copy(e.name);
+					if (fname.get_fext() == ".mix")
+					{
+						e.ft = f.get_file_type_ext();
+						e.size = f.get_size();
+					}
+				}
 			}
 			CListCtrl& lc = GetListCtrl();
 			LVFINDINFO lvf;

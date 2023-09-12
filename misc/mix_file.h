@@ -6,7 +6,7 @@
 class Cmix_file : public Ccc_file  
 {
 public:
-	int post_open();
+	virtual int post_open();
 	string get_name(int id);
 	static int get_id(t_game game, string name);
 	int get_index(unsigned int id) const;
@@ -14,7 +14,7 @@ public:
 	using Ccc_file::vdata;
 	Cvirtual_binary get_vdata(int id);
 	Cvirtual_binary get_vdata(const string& name);
-	bool is_valid();
+	virtual bool is_valid();
 	void close();
 	Cmix_file();
 
@@ -82,7 +82,7 @@ public:
 	{
 		return &m_index[0];
 	}
-private:
+protected:
 	using t_id_index = map<int, int>;
 
 	static bool m_ft_support;

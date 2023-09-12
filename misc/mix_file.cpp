@@ -197,10 +197,12 @@ int Cmix_file::post_open()
 				read(&header, sizeof(header));
 				int c_files = header.c_files;
 				const int cb_index = c_files * sizeof(t_mix_index_entry);
-				if (get_size() != 4 + sizeof(t_mix_header) + cb_index + header.size + (m_has_checksum ? 20 : 0))
+				auto mix_size = get_size();
+				if (mix_size != 4 + sizeof(t_mix_header) + cb_index + header.size + (m_has_checksum ? 20 : 0))
 					test_fail(1);				
 				m_index.resize(c_files);
 				read(&m_index[0], cb_index);
+
 				for (int i = 0; i < c_files; i++)
 				{
 					if (m_index[i].offset & 0xf)
