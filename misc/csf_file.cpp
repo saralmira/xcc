@@ -1,6 +1,28 @@
 #include "stdafx.h"
 #include "csf_file.h"
 
+#include <comdef.h>
+
+string encode(string s)
+{
+	string r(s);
+	for (int i = 0; i < s.size(); ++i)
+	{
+		r[i] = ~s[i];
+	}
+	return r;
+}
+
+wstring encode(wstring s)
+{
+	wstring r(s);
+	for (int i = 0; i < s.size(); ++i)
+	{
+		r[i] = ~s[i];
+	}
+	return r;
+}
+
 int read_int(const byte*& r)
 {
 	int v = *reinterpret_cast<const __int32*>(r);
@@ -17,7 +39,7 @@ void write_int(byte*& w, int v)
 string read_string(const byte*& r)
 {
 	int cb_s = read_int(r);
-	string s = to_lower_copy(string(reinterpret_cast<const char*>(r), cb_s));
+	string s = string(reinterpret_cast<const char*>(r), cb_s);
 	r += cb_s;
 	return s;
 }
@@ -25,7 +47,7 @@ string read_string(const byte*& r)
 wstring read_wstring(const byte*& r)
 {
 	int cb_s = read_int(r);
-	wstring s = wstring(reinterpret_cast<const wchar_t*>(r), cb_s);
+	wstring s = encode(wstring(reinterpret_cast<const wchar_t*>(r), cb_s));
 	r += cb_s << 1;
 	return s;
 }
@@ -42,7 +64,7 @@ void write_wstring(byte*& w, wstring v)
 {
 	int l = v.length();
 	write_int(w, l);
-	memcpy(w, v.c_str(), l << 1);
+	memcpy(w, encode(v).c_str(), l << 1);
 	w += l << 1;
 }
 
@@ -75,18 +97,38 @@ int Ccsf_file::post_open()
 
 string Ccsf_file::convert2string(const wstring& s)
 {
-	string r;
-	for (int i = 0; i < s.length(); i++)
-		r += ~s[i];
-	return r;
+	string result;
+	int len = WideCharToMultiByte(CP_ACP, 0, s.c_str(), s.size(), NULL, 0, NULL, NULL);
+	if (len <= 0)return result;
+	char* buffer = new char[len + 1];
+	if (buffer == NULL)return result;
+	WideCharToMultiByte(CP_ACP, 0, s.c_str(), s.size(), buffer, len, NULL, NULL);
+	buffer[len] = '\0';
+	result.append(buffer);
+	delete[] buffer;
+	return result;
+	//string r;
+	//for (int i = 0; i < s.length(); i++)
+	//	r += ~s[i];
+	//return r;
 }
 
 wstring Ccsf_file::convert2wstring(const string& s)
 {
-	wstring r;
-	for (int i = 0; i < s.length(); i++)
-		r += 0xff00 | ~s[i];
-	return r;
+	wstring result;
+	int len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), s.size(), NULL, 0);
+	if (len < 0)return result;
+	wchar_t* buffer = new wchar_t[len + 1];
+	if (buffer == NULL)return result;
+	MultiByteToWideChar(CP_ACP, 0, s.c_str(), s.size(), buffer, len);
+	buffer[len] = '\0';
+	result.append(buffer);
+	delete[] buffer;
+	return result;
+	//wstring r;
+	//for (int i = 0; i < s.length(); i++)
+	//	r += 0xff00 | ~s[i];
+	//return r;
 }
 
 void Ccsf_file::erase_value(const string& name)

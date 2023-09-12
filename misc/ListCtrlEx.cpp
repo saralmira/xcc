@@ -12,8 +12,23 @@ void CListCtrlEx::auto_size()
 {
 	if (!GetSafeHwnd() || !GetHeaderCtrl())
 		return;
-	for (int i = 0; i < GetHeaderCtrl()->GetItemCount(); i++)
-		SetColumnWidth(i, LVSCW_AUTOSIZE_USEHEADER);
+	auto count = GetHeaderCtrl()->GetItemCount();
+	for (int i = 0; i < count; i++)
+	{
+		// to prevent crash
+		switch (i)
+		{
+		case 0:
+			SetColumnWidth(i, 160);//LVSCW_AUTOSIZE_USEHEADER);
+			break;
+		case 1:
+			SetColumnWidth(i, 360);//LVSCW_AUTOSIZE_USEHEADER);
+			break;
+		default:
+			SetColumnWidth(i, 200);//LVSCW_AUTOSIZE_USEHEADER);
+			break;
+		}
+	}
 }
 
 void CListCtrlEx::DeleteAllColumns()

@@ -174,26 +174,35 @@ int move_file(string s, string d)
 bool fname_filter(const string& fname, const string& filter)
 {
 	size_t i;
-	for (i = 0; i < filter.size(); i++)
+	if (filter.contains('*') || filter.contains('?'))
 	{
-		char c = filter[i];
-		if (c == '*')
+		for (i = 0; i < filter.size(); i++)
 		{
-			if (filter.find('*', i + 1) == string::npos)
+			char c = filter[i];
+			if (c == '*')
 			{
-				int j = fname.length() - filter.length() + 1;
-				return j < 0 ? false : fname_filter(fname.substr(i + j), filter.substr(i + 1));
+				if (filter.find('*', i + 1) == string::npos)
+				{
+					int j = fname.length() - filter.length() + 1;
+					return j < 0 ? false : fname_filter(fname.substr(i + j), filter.substr(i + 1));
+				}
+				// for (int j = 0; j < min(fname.length(), filter.length()) - i; j++)
+				for (size_t j = 0; j < fname.size(); j++)
+				{
+					if (fname_filter(fname.substr(i + j), filter.substr(i + 1)))
+						return true;
+				}
+				return false;
 			}
-			// for (int j = 0; j < min(fname.length(), filter.length()) - i; j++)
-			for (size_t j = 0; j < fname.size(); j++)
-			{
-				if (fname_filter(fname.substr(i + j), filter.substr(i + 1)))
-					return true;
-			}
-			return false;
+			if (c != '?' && c != fname[i])
+				return false;
 		}
-		if (c != '?' && c != fname[i])
-			return false;
+	}
+	else
+	{
+		auto tmp1 = to_lower_copy(fname);
+		auto tmp2 = to_lower_copy(filter);
+		return tmp1.find(tmp2) != string::npos;
 	}
 	return fname.length() == i;
 }

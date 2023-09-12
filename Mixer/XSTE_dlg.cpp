@@ -269,7 +269,7 @@ void CXSTE_dlg::OnGetdispinfoList(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	LV_DISPINFO* pDispInfo = (LV_DISPINFO*)pNMHDR;
 	int id = m_list.GetItemData(pDispInfo->item.iItem);
-	const t_map_entry& e = find_ref(m_map, id);
+	const t_map_entry& e = m_map.at(id);//find_ref(m_map, id);
 	string& buffer = m_list.get_buffer();
 	switch (pDispInfo->item.iSubItem)
 	{

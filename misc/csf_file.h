@@ -12,7 +12,7 @@ public:
 		string extra_value;
 	};
 
-	using t_map = map<string, t_map_entry>;
+	using t_map = std::map<string, t_map_entry>;
 
     int post_open();
 	void erase_value(const string& name);
@@ -41,12 +41,14 @@ public:
 
 	wstring get_value(const string& name) const
 	{
-		return find_ref(m_map, name).value;
+		return m_map.at(name).value;
+		//return find_ref(m_map, name).value;
 	}
 
 	string get_extra_value(const string& name) const
 	{
-		return find_ref(m_map, name).extra_value;
+		return m_map.at(name).extra_value;
+		//return find_ref(m_map, name).extra_value;
 	}
 
 	bool has_name(const string& name) const
