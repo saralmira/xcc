@@ -31,6 +31,16 @@ void CListCtrlEx::auto_size()
 	}
 }
 
+void CListCtrlEx::set_size(int width, int column)
+{
+	if (!GetSafeHwnd() || !GetHeaderCtrl())
+		return;
+	auto count = GetHeaderCtrl()->GetItemCount();
+	if (column < 0 || column >= count)
+		return;
+	SetColumnWidth(column, width <= 0 ? LVSCW_AUTOSIZE_USEHEADER : width);
+}
+
 void CListCtrlEx::DeleteAllColumns()
 {
 	while (GetHeaderCtrl()->GetItemCount())

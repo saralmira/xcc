@@ -2,6 +2,7 @@
 #include "MainFrm.h"
 #include "SearchFileDlg.h"
 
+#include <boost/algorithm/string.hpp>
 #include "string_conversion.h"
 
 CSearchFileDlg::CSearchFileDlg(CWnd* pParent /*=NULL*/)
@@ -51,11 +52,11 @@ BOOL CSearchFileDlg::OnInitDialog()
 			);
 	ETSLayoutDialog::OnInitDialog();
 	m_list.InsertColumn(0, "Name");
-	m_list.auto_size();
+	m_list.set_size(0);
 	return true;
 }
 
-void CSearchFileDlg::find(Cmix_file& f, string file_name, string mix_name, int mix_id)
+void CSearchFileDlg::find(Cmix_file& f, string file_name, string mix_name, int mix_id, int sub_mix_id)
 {
 	for (int i = 0; i < f.get_c_files(); i++)
 	{
@@ -65,10 +66,20 @@ void CSearchFileDlg::find(Cmix_file& f, string file_name, string mix_name, int m
 		{
 			name = nh(8, id);
 			if (Cmix_file::get_id(f.get_game(), file_name) == id)
-				add(mix_name + " - " + name, mix_id, id);
+				add(mix_name + " - " + name, mix_id, id, sub_mix_id);
 		}
 		else if (fname_filter(name, file_name))
-			add(mix_name + " - " + name, mix_id, id);
+			add(mix_name + " - " + name, mix_id, id, sub_mix_id);
+
+		// deep search in mix
+		if (f.get_type(id) == ft_mix)
+		{
+			Cmix_file fg;
+			if (!fg.open(id, f))
+			{
+				find(fg, file_name, mix_name + " - " + name, mix_id, i);
+			}
+		}
 	}
 	for (auto& i : m_main_frame->mix_map_list())
 	{
@@ -80,6 +91,28 @@ void CSearchFileDlg::find(Cmix_file& f, string file_name, string mix_name, int m
 	}
 }
 
+void CSearchFileDlg::find(const map<int, t_index_entry>& t_map, const string& post)
+{
+	for (auto& i : t_map)
+	{
+		if (i.second.name.empty())
+			continue;
+		Cmix_file f;
+		if (!f.open(i.second.name))
+		{
+			find(f, get_filename(), i.second.name + post, i.first);
+		}
+		else if (i.second.ft == ft_mix)
+		{
+			Cmix_file_rd f_rd;
+			if (f_rd.open(i.second.name))
+			{
+				find(f_rd, get_filename(), i.second.name + post, i.first);
+			}
+		}
+	}
+}
+
 void CSearchFileDlg::OnFind() 
 {
 	if (UpdateData(true))
@@ -87,29 +120,35 @@ void CSearchFileDlg::OnFind()
 		CWaitCursor wait;
 		m_list.DeleteAllItems();
 		m_map.clear();
-		for (auto& i : m_main_frame->mix_map_list())
-		{
-			if (i.second.fname.empty())
-				continue;
-			Cmix_file f;
-			if (!f.open(i.second.fname))
-			{
-				const t_mix_map_list_entry& e = find_ref(m_main_frame->mix_map_list(), i.second.parent);
-				find(f, get_filename(), e.name + " - " + i.second.name, i.first);
-			}
-		}
+
+		//for (auto& i : m_main_frame->mix_map_list())
+		//{
+		//	if (i.second.fname.empty())
+		//		continue;
+		//	Cmix_file f;
+		//	if (!f.open(i.second.fname))
+		//	{
+		//		const t_mix_map_list_entry& e = find_ref(m_main_frame->mix_map_list(), i.second.parent);
+		//		find(f, get_filename(), e.name + " - " + i.second.name, i.first);
+		//	}
+		//}
+		find(m_main_frame->left_mix_pane()->t_index_list(), " (1)");
+		m_sepindex = m_map.size();
+		find(m_main_frame->right_mix_pane()->t_index_list(), " (2)");
+
 		m_list.SetItemCount(m_map.size());
 		for (auto& i : m_map)
 			m_list.InsertItemData(i.first);
 	}
 }
 
-void CSearchFileDlg::add(string name, int mix_id, int file_id)
+void CSearchFileDlg::add(string name, int mix_id, int file_id, int sub_mix_id)
 {
 	t_map_entry& e = m_map[m_map.size()];
 	e.name = name;
 	e.id = file_id;
 	e.parent = mix_id;
+	e.parent_parent = sub_mix_id;
 }
 
 void CSearchFileDlg::OnDblclkList(NMHDR* pNMHDR, LRESULT* pResult) 
@@ -122,8 +161,16 @@ void CSearchFileDlg::OnDblclkList(NMHDR* pNMHDR, LRESULT* pResult)
 
 void CSearchFileDlg::open_mix(int id)
 {
-	const t_map_entry& e = find_ref(m_map, id);
-	m_main_frame->left_mix_pane()->open_location_mix(m_main_frame->mix_map_list().find(e.parent), e.id);
+	const t_map_entry& e = m_map[id];
+	//m_main_frame->left_mix_pane()->open_location_mix(m_main_frame->mix_map_list().find(e.parent), e.id);
+	if (id < m_sepindex) // left
+	{
+		m_main_frame->left_mix_pane()->open_location_mix(e.parent, e.parent_parent, e.id);
+	}
+	else
+	{
+		m_main_frame->right_mix_pane()->open_location_mix(e.parent, e.parent_parent, e.id);
+	}
 	EndDialog(IDCANCEL);
 }
 

@@ -126,7 +126,7 @@ int Cmix_file_rd::post_open()
 				test_fail(1);
 			m_index.resize(c_files);
 			read(&m_index[0], cb_index);
-			auto body_size = get_size() - (sizeof(t_mix_header) + cb_index) - (m_has_checksum ? 20 : 0);
+			auto body_size = mix_size - (sizeof(t_mix_header) + cb_index) - (m_has_checksum ? 20 : 0);
 			for (int i = 0; i < c_files; i++)
 			{
 				if (m_index[i].offset < 0 || m_index[i].size < 0 || (m_index[i].offset + m_index[i].size) > body_size)

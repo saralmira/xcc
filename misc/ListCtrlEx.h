@@ -20,6 +20,7 @@ public:
 	int InsertItemData(int nItem, DWORD dwData);
 	int InsertItemData(DWORD dwData);
 	void auto_size();
+	void set_size(int width, int column = 0);
 protected:
 	//{{AFX_MSG(CListCtrlEx)
 	afx_msg void OnCustomDraw(NMHDR* pNMHDR, LRESULT* pResult);

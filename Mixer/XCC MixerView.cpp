@@ -355,6 +355,30 @@ void CXCCMixerView::open_location_mix(t_mix_map_list::const_iterator i, int file
 	}
 }
 
+void CXCCMixerView::open_location_mix(int mix_id, int sub_mix_id, int file_id)
+{
+	close_all_locations();
+	const t_index_entry& mix = t_index_list().at(mix_id);
+	open_location_mix(m_dir.rfind('\\') == string::npos ? (m_dir + '\\' + mix.name) : (m_dir + mix.name));
+	if (sub_mix_id >= 0)
+	{
+		open_location_mix(m_mix_f->get_id(sub_mix_id));
+	}
+	if (file_id)
+	{
+		CListCtrl& lc = GetListCtrl();
+		LVFINDINFO lvf;
+		lvf.flags = LVFI_PARAM;
+		lvf.lParam = file_id;
+		int i = lc.FindItem(&lvf, -1);
+		if (i != -1)
+		{
+			lc.SetItemState(i, LVIS_FOCUSED | LVIS_SELECTED, LVIS_FOCUSED | LVIS_SELECTED);
+			lc.EnsureVisible(i, false);
+		}
+	}
+}
+
 void CXCCMixerView::open_location_mix(int id)
 {
 	Cmix_file* mix_f = new Cmix_file;

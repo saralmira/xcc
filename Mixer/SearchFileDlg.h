@@ -10,8 +10,9 @@ class CSearchFileDlg : public ETSLayoutDialog
 // Construction
 public:
 	void open_mix(int id);
-	void add(string name, int mix_id, int file_id);
-	void find(Cmix_file& f, string file_name, string mix_name, int mix_id);
+	void add(string name, int mix_id, int file_id, int sub_mix_id = -1);
+	void find(Cmix_file& f, string file_name, string mix_name, int mix_id, int sub_mix_id = -1);
+	void find(const map<int, t_index_entry>& t_map, const string& post);
 	void set(CMainFrame* main_frame);
 	CSearchFileDlg(CWnd* pParent = NULL);   // standard constructor
 
@@ -53,6 +54,7 @@ private:
 		string name;
 		int id;
 		int parent;
+		int parent_parent;
 	};
 
 	using t_map = map<int, t_map_entry>;
@@ -60,4 +62,5 @@ private:
 	CMainFrame* m_main_frame;
 	t_map m_map;
 	CString m_reg_key;
+	int m_sepindex;
 };
