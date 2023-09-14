@@ -306,7 +306,7 @@ void CXCCMixerView::open_location_mix(const string& name)
 		mix_f = new Cmix_file_rd;
 		if (static_cast<Cmix_file_rd*>(mix_f)->open(name))
 		{
-			delete mix_f;
+			delete static_cast<Cmix_file_rd*>(mix_f);
 		}
 		else
 		{

@@ -91,21 +91,22 @@ void CSearchFileDlg::find(Cmix_file& f, string file_name, string mix_name, int m
 	}
 }
 
-void CSearchFileDlg::find(const map<int, t_index_entry>& t_map, const string& post)
+void CSearchFileDlg::find(const map<int, t_index_entry>& t_map, const string& post, const string& dir)
 {
 	for (auto& i : t_map)
 	{
 		if (i.second.name.empty())
 			continue;
+		string fname = dir.rfind('\\') == string::npos ? (dir + '\\' + i.second.name) : (dir + i.second.name);
 		Cmix_file f;
-		if (!f.open(i.second.name))
+		if (!f.open(fname))
 		{
 			find(f, get_filename(), i.second.name + post, i.first);
 		}
 		else if (i.second.ft == ft_mix)
 		{
 			Cmix_file_rd f_rd;
-			if (f_rd.open(i.second.name))
+			if (!f_rd.open(fname))
 			{
 				find(f_rd, get_filename(), i.second.name + post, i.first);
 			}
@@ -132,9 +133,10 @@ void CSearchFileDlg::OnFind()
 		//		find(f, get_filename(), e.name + " - " + i.second.name, i.first);
 		//	}
 		//}
-		find(m_main_frame->left_mix_pane()->t_index_list(), " (1)");
+		
+		find(m_main_frame->left_mix_pane()->t_index_list(), " (1)", m_main_frame->left_mix_pane()->current_dir());
 		m_sepindex = m_map.size();
-		find(m_main_frame->right_mix_pane()->t_index_list(), " (2)");
+		find(m_main_frame->right_mix_pane()->t_index_list(), " (2)", m_main_frame->right_mix_pane()->current_dir());
 
 		m_list.SetItemCount(m_map.size());
 		for (auto& i : m_map)

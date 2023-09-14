@@ -12,7 +12,7 @@ public:
 	void open_mix(int id);
 	void add(string name, int mix_id, int file_id, int sub_mix_id = -1);
 	void find(Cmix_file& f, string file_name, string mix_name, int mix_id, int sub_mix_id = -1);
-	void find(const map<int, t_index_entry>& t_map, const string& post);
+	void find(const map<int, t_index_entry>& t_map, const string& post, const string& dir);
 	void set(CMainFrame* main_frame);
 	CSearchFileDlg(CWnd* pParent = NULL);   // standard constructor
 

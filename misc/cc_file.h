@@ -171,6 +171,7 @@ public:
 	}
 protected:
 	int m_offset;
+	string m_fext;
 private:
 	Cvirtual_binary m_data;
 	Cfile32 m_f;

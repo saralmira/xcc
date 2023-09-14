@@ -77,6 +77,8 @@ public:
 		return m_index;
 	}
 
+	const string& current_dir() const { return m_dir; }
+
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CXCCMixerView)

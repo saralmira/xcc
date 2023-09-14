@@ -501,7 +501,7 @@ void CXCCFileView::OnDraw(CDC* pDC)
 			}
 		case ft_mix:
 			{
-				Cmix_file f;
+				Cmix_file_rd f;
 				f.load(m_data, m_size);
 				const int c_files = f.get_c_files();
 				const t_game game = f.get_game();
@@ -1231,6 +1231,7 @@ void CXCCFileView::post_open(Ccc_file& f)
 		m_cy = 0;
 		m_ft = f.get_file_type(false);
 		m_size = f.get_size();
+		
 		int cb_max_data = (m_ft == ft_dds || m_ft == ft_jpeg || m_ft == ft_map_td || m_ft == ft_map_ra || m_ft == ft_map_ts || m_ft == ft_pcx || m_ft == ft_png || m_ft == ft_shp || m_ft == ft_shp_ts || m_ft == ft_tga || m_ft == ft_vxl || m_ft == ft_wsa_dune2 || m_ft == ft_wsa || m_ft == ft_xif) ? m_size : 256 << 10;
 		int cb_data = m_size > cb_max_data ? cb_max_data : m_size;	
 		f.read(m_data.write_start(cb_data), cb_data);

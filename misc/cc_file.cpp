@@ -187,7 +187,8 @@ Ccc_file::Ccc_file(bool read_on_open) :
 			m_f.close();
 #ifndef NO_FT_SUPPORT
 		Cfname fname = to_lower_copy(name);
-		if (fname.get_fext() == ".mmx")
+		m_fext = fname.get_fext();
+		if (m_fext == ".mmx")
 		{
 			fname.set_ext(".map");
 			mix_database::add_name(game_ra2, fname.get_fname(), "-");
@@ -523,6 +524,10 @@ Ccc_file::Ccc_file(bool read_on_open) :
 				return ft_ini;
 			}
 			return ft_text;
+		}
+		if (m_fext == ".mix")
+		{
+			return get_file_type_ext(fast);
 		}
 		return ft_unknown;
 	}

@@ -13,7 +13,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// English (United States) resources
+// ”¢”Ô(√¿π˙) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
@@ -64,7 +64,9 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON                    "res\\XCC Mixer.ico"
+
 IDR_XCCMIXTYPE          ICON                    "res\\XCC MixerDoc.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -141,7 +143,7 @@ BEGIN
             MENUITEM SEPARATOR
             MENUITEM "&Open...",                    ID_LAUNCH_XSTE_OPEN
         END
-        POPUP "XCC &Theme Writer"
+        POPUP "XCC &Theme Writer", INACTIVE
         BEGIN
             MENUITEM "&Tiberian Sun",               ID_LAUNCH_XTW_TS
             MENUITEM "&Red Alert 2",                ID_LAUNCH_XTW_RA2
@@ -286,16 +288,16 @@ BEGIN
     GROUPBOX        "Pixel size",IDC_STATIC,4,2,176,31
 END
 
-IDD_SEARCH_FILE DIALOG 0, 0, 123, 143
+IDD_SEARCH_FILE DIALOGEX 0, 0, 158, 145
 STYLE DS_SETFONT | DS_MODALFRAME | WS_MAXIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Search file"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    EDITTEXT        IDC_FILENAME,45,7,77,14,ES_AUTOHSCROLL
-    CONTROL         "List1",IDC_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOCOLUMNHEADER | WS_BORDER | WS_TABSTOP,11,52,44,25
-    DEFPUSHBUTTON   "Search",IDOK,9,100,50,14
-    PUSHBUTTON      "Close",IDCANCEL,68,122,50,14
-    LTEXT           "Filename:",IDC_FILENAME_STATIC,7,7,31,8
+    EDITTEXT        IDC_FILENAME,45,7,106,14,ES_AUTOHSCROLL
+    CONTROL         "List1",IDC_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOCOLUMNHEADER | WS_BORDER | WS_TABSTOP,7,28,143,89
+    DEFPUSHBUTTON   "Search",IDOK,6,122,50,16
+    PUSHBUTTON      "Close",IDCANCEL,98,122,50,16
+    LTEXT           "Filename:",IDC_FILENAME_STATIC,7,11,31,8
 END
 
 IDD_XCC_OBJECT_EXTRACTOR DIALOG 0, 0, 166, 198
@@ -423,10 +425,26 @@ BEGIN
         BOTTOMMARGIN, 107
     END
 
+    IDD_SEARCH_FILE, DIALOG
+    BEGIN
+    END
+
+    IDD_XCC_OBJECT_EXTRACTOR, DIALOG
+    BEGIN
+    END
+
     IDD_XSTE, DIALOG
     BEGIN
         HORZGUIDE, 115
         HORZGUIDE, 128
+    END
+
+    IDD_XSTE_EDIT, DIALOG
+    BEGIN
+    END
+
+    IDD_XSE, DIALOG
+    BEGIN
     END
 
     IDD_SHP_VIEWER, DIALOG
@@ -450,6 +468,22 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_SEARCH_FILE AFX_DIALOG_LAYOUT
+BEGIN
+    0,
+    0, 0, 0, 0,
+    0, 0, 100, 100,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // String Table
 //
 
@@ -463,12 +497,12 @@ BEGIN
     AFX_IDS_IDLEMESSAGE     "Ready"
 END
 
-#endif    // English (United States) resources
+#endif    // ”¢”Ô(√¿π˙) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// Dutch (Netherlands) resources
+// ∫…¿º”Ô(∫…¿º) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NLD)
 LANGUAGE LANG_DUTCH, SUBLANG_DUTCH
@@ -509,7 +543,7 @@ BEGIN
 END
 #endif    // APSTUDIO_INVOKED
 
-#endif    // Dutch (Netherlands) resources
+#endif    // ∫…¿º”Ô(∫…¿º) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
