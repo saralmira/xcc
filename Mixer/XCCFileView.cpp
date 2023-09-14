@@ -42,6 +42,7 @@
 #include <wav_file.h>
 #include <wsa_dune2_file.h>
 #include <wsa_file.h>
+#include <csf_file.h>
 
 IMPLEMENT_DYNCREATE(CXCCFileView, CScrollView)
 
@@ -1068,6 +1069,21 @@ void CXCCFileView::OnDraw(CDC* pDC)
 				}
 				break;
 			}
+		case ft_csf:
+			{
+				Ccsf_file_rd f;
+				f.load(m_data, m_size);
+				const int c_strs = f.header().count1;
+				auto& c_strmaps = f.get_map();
+				draw_info("Count strings:", n(c_strs));
+				m_y += m_y_inc;
+				draw_info("Name", "Value\t\tExtra Value");
+				for (auto i : c_strmaps)
+				{
+					draw_info(i.first, Ccsf_file::convert2string(i.second.value) + "\t\t" + i.second.extra_value);
+				}
+				break;
+			}
 		default:
 			show_binary = true;
 		}
@@ -1232,7 +1248,11 @@ void CXCCFileView::post_open(Ccc_file& f)
 		m_ft = f.get_file_type(false);
 		m_size = f.get_size();
 		
-		int cb_max_data = (m_ft == ft_dds || m_ft == ft_jpeg || m_ft == ft_map_td || m_ft == ft_map_ra || m_ft == ft_map_ts || m_ft == ft_pcx || m_ft == ft_png || m_ft == ft_shp || m_ft == ft_shp_ts || m_ft == ft_tga || m_ft == ft_vxl || m_ft == ft_wsa_dune2 || m_ft == ft_wsa || m_ft == ft_xif) ? m_size : 256 << 10;
+		int cb_max_data = (m_ft == ft_dds || m_ft == ft_jpeg || m_ft == ft_map_td || m_ft == ft_map_ra
+			|| m_ft == ft_map_ts || m_ft == ft_pcx || m_ft == ft_png || m_ft == ft_shp
+			|| m_ft == ft_shp_ts || m_ft == ft_tga || m_ft == ft_vxl || m_ft == ft_wsa_dune2
+			|| m_ft == ft_wsa || m_ft == ft_xif) ? m_size :
+			(m_ft == ft_csf ? 64 << 8 : 256 << 10);
 		int cb_data = m_size > cb_max_data ? cb_max_data : m_size;	
 		f.read(m_data.write_start(cb_data), cb_data);
 		f.close();

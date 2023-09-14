@@ -5,6 +5,7 @@
 #include "XCCFileView.h"
 #include "XCC MixerDoc.h"
 #include "XCC MixerView.h"
+#include "XSTE_dlg.h"
 #include "resource.h"
 
 #include <aud_decode.h>
@@ -2817,6 +2818,13 @@ void CXCCMixerView::open_item(int id)
 			dlg.write(decoder);
 			dlg.DoModal();
 			delete decoder;
+			break;
+		}
+	case ft_csf:
+		{
+			CXSTE_dlg dlg2(game_unknown);
+			dlg2.open(m_dir + index.name);
+			dlg2.DoModal();
 			break;
 		}
 	}

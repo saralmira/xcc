@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Developer Studio generated include file.
-// Used by XCC Mixer.rc
+// Microsoft Visual C++ 生成的包含文件。
+// 供 XCC Mixer.rc 使用
 //
 #define IDC_RESET_DATA                  3
 #define IDC_RESET_CD                    4
@@ -360,6 +360,7 @@
 #define ID_POPUP_COPY_AS_TGA_SINGLE     33129
 #define ID_POPUP_COPY_AS_JPEG_SINGLE    33130
 #define ID_LAUNCH_XSE_OPEN              33131
+#define ID_LAUNCH_MIXEDITOR             33132
 #define ID_VIEW_PALET_PAL000            40000
 #define ID_VIEW_PALET_PAL001            40001
 #define ID_VIEW_PALET_PAL002            40002
@@ -1366,8 +1367,8 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        141
-#define _APS_NEXT_COMMAND_VALUE         33132
+#define _APS_NEXT_RESOURCE_VALUE        142
+#define _APS_NEXT_COMMAND_VALUE         33133
 #define _APS_NEXT_CONTROL_VALUE         1047
 #define _APS_NEXT_SYMED_VALUE           103
 #endif

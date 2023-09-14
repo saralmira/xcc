@@ -14,7 +14,7 @@ public:
 
 	using t_map = std::map<string, t_map_entry>;
 
-    int post_open();
+  virtual int post_open();
 	void erase_value(const string& name);
 	string get_converted_value(const string& name) const;
 	void set_value(const string& name, const wstring& value, const string& extra_value);
@@ -60,4 +60,10 @@ private:
 	void write(byte* d) const;
 
 	t_map m_map;
+};
+
+class Ccsf_file_rd : public Ccsf_file
+{
+public:
+	int post_open();
 };

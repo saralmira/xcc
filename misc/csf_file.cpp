@@ -190,3 +190,56 @@ Cvirtual_binary Ccsf_file::write() const
 	write(d.write_start(get_write_size()));
 	return d;
 }
+
+string read_string2(const byte*& r, const int size)
+{
+	string s = string(reinterpret_cast<const char*>(r), size);
+	r += size;
+	return s;
+}
+
+wstring read_wstring2(const byte*& r, const int size)
+{
+	wstring s = encode(wstring(reinterpret_cast<const wchar_t*>(r), size));
+	r += size << 1;
+	return s;
+}
+
+int Ccsf_file_rd::post_open()
+{
+	if (!is_valid())
+		return 1;
+	int cb_s;
+	auto size = vdata().size();
+	auto ptr_end = data() + size;
+	const byte* r = data() + sizeof(t_csf_header);
+	for (int i = 0; i < header().count1; i++)
+	{
+		if (r + 12 > ptr_end) break;
+		read_int(r);
+		int flags = read_int(r);
+		cb_s = read_int(r);
+		if (r + cb_s > ptr_end) break;
+		string name = read_string2(r, cb_s);
+		if (flags & 1)
+		{
+			if (r + 8 > ptr_end) break;
+			bool has_extra_value = read_int(r) == csf_string_w_id;
+			cb_s = read_int(r);
+			if (r + (cb_s << 1) > ptr_end) break;
+			wstring value = read_wstring2(r, cb_s);
+			string extra_value;
+			if (has_extra_value)
+			{
+				cb_s = read_int(r);
+				if (r + cb_s > ptr_end) break;
+				extra_value = read_string2(r, cb_s);
+			}
+			set_value(name, value, extra_value);
+		}
+		else
+			set_value(name, wstring(), string());
+	}
+	return 0;
+}
+

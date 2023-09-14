@@ -226,5 +226,6 @@ protected:
 	afx_msg void OnUpdateViewPalet(CCmdUI* pCmdUI);
 	afx_msg void OnConversionRemapTeamColors();
 	afx_msg void OnUpdateConversionRemapTeamColors(CCmdUI* pCmdUI);
+	afx_msg void OnLaunchMixEditor_Open();
 	DECLARE_MESSAGE_MAP()
 };

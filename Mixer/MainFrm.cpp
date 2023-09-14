@@ -91,6 +91,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_UPDATE_COMMAND_UI(ID_LAUNCH_XSE_RA2, OnUpdateLaunchXSE_RA2)
 	ON_COMMAND(ID_LAUNCH_XSE_RA2_YR, OnLaunchXSE_RA2_YR)
 	ON_UPDATE_COMMAND_UI(ID_LAUNCH_XSE_RA2_YR, OnUpdateLaunchXSE_RA2_YR)
+	ON_COMMAND(ID_LAUNCH_MIXEDITOR, OnLaunchMixEditor_Open)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -800,6 +801,14 @@ void CMainFrame::OnLaunchXSE_Open()
 	dlg2.bag_file(string(dlg0.GetPathName()));
 	dlg2.idx_file(string(dlg1.GetPathName()));
 	dlg2.DoModal();
+}
+
+void CMainFrame::OnLaunchMixEditor_Open()
+{
+	STARTUPINFO si = { sizeof(si) };
+	PROCESS_INFORMATION pi;
+	TCHAR szCommandLine[] = TEXT("\"XCC MIX Editor.exe\"");
+	CreateProcess(NULL, szCommandLine, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
 }
 
 void CMainFrame::OnDestroy() 

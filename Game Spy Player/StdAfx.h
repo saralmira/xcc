@@ -19,7 +19,7 @@
 #include <list>
 #include <set>
 #include <vector>
-#include <xbt/find_ptr.h>
+#include <xcc/find_ptr.h>
 #include <mmsystem.h>
 #include "ETSLayout.h"
 
