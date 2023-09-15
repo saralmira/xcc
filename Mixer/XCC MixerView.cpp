@@ -926,7 +926,7 @@ bool CXCCMixerView::can_delete()
 	{
 		int id = GetListCtrl().GetItemData(i);
 		const t_index_entry& index = find_ref(m_index, id);
-		if (index.ft == ft_dir || index.ft == ft_drive || index.name.empty())
+		if (index.ft == ft_drive || index.name.empty() || (index.ft == ft_dir && (index.name == "." || index.name == "..")))
 			return false;
 		m_index_selected.push_back(i);
 		i = GetListCtrl().GetNextItem(i, LVNI_ALL | LVNI_SELECTED);
@@ -2221,6 +2221,53 @@ void CXCCMixerView::OnUpdatePopupCompact(CCmdUI* pCmdUI)
 	pCmdUI->Enable(m_location.size() == 1);
 }
 
+bool DeleteDirectory(string strPath, const int uiEndLevel = -1, int iCurrentLevel = 0)
+{
+	if (iCurrentLevel > uiEndLevel)
+	{
+		return true;
+	}
+	WIN32_FIND_DATA findFileData;
+	auto strFindPath = strPath + "\\*";
+
+	HANDLE hFind = FindFirstFile(strFindPath.c_str(), &findFileData);
+	if (INVALID_HANDLE_VALUE == hFind) {
+		return false;
+	}
+
+	bool result = true;
+	do
+	{
+		string strFileName = findFileData.cFileName;
+		if (strFileName != "." && strFileName != "..")
+		{
+			strFindPath = strPath + "\\" + strFileName;
+			if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+			{
+				if (!DeleteDirectory(strFindPath, uiEndLevel, iCurrentLevel + 1) || !RemoveDirectory(strFindPath.c_str()))
+				{
+					result = false;
+					break;
+				}
+			}
+			else
+			{
+				if (!DeleteFile(strFindPath.c_str()))
+				{
+					result = false;
+					break;
+				}
+			}
+		}
+	} while (FindNextFile(hFind, &findFileData));
+	FindClose(hFind);
+	if (result && !RemoveDirectory(strPath.c_str()))
+	{
+		result = false;
+	}
+	return result;
+}
+
 void CXCCMixerView::OnPopupDelete()
 {
 	if (~GetAsyncKeyState(VK_SHIFT) < 0 && MessageBox("Are you sure you want to delete these files?", NULL, MB_ICONQUESTION | MB_YESNO) != IDYES)
@@ -2276,7 +2323,13 @@ void CXCCMixerView::OnPopupDelete()
 	{
 		for (auto& i : m_index_selected)
 		{
-			if (!DeleteFile((m_dir + find_ref(m_index, get_id(i)).name).c_str()))
+			const t_index_entry& index = find_ref(m_index, get_id(i));
+			if (index.ft == ft_dir)
+			{
+				if (!DeleteDirectory(m_dir + index.name, 1))
+					error = 1;
+			}
+			else if (!DeleteFile((m_dir + index.name).c_str()))
 				error = 1;
 		}
 	}
