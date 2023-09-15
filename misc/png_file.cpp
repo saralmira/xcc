@@ -20,25 +20,26 @@ int Cpng_file::decode(Cvirtual_image& d) const
 		return 1;
 	int cx = img.width;
 	int cy = img.height;
-	if (img.format == PNG_FORMAT_RGB_COLORMAP)
+	Cvirtual_binary t;
+	switch (img.format)
 	{
-		Cvirtual_binary t;
+	case PNG_FORMAT_RGB_COLORMAP:
 		t_palet palet;
 		if (!png_image_finish_read(&img, NULL, t.write_start(cx * cy), cx, palet))
 			return 1;
 		d.load(t, cx, cy, 1, palet);
 		return 0;
-	}
-	else if (img.format == PNG_FORMAT_RGB)
-	{
-		Cvirtual_binary t;
+	case PNG_FORMAT_RGB:
 		if (!png_image_finish_read(&img, NULL, t.write_start(3 * cx * cy), 3 * cx, NULL))
 			return 1;
 		d.load(t, cx, cy, 3, NULL);
 		return 0;
-	}
-	else
-	{
+	case PNG_FORMAT_RGBA:
+		if (!png_image_finish_read(&img, NULL, t.write_start(4 * cx * cy), 4 * cx, NULL))
+			return 1;
+		d.load(t, cx, cy, 4, NULL);
+		return 0;
+	default:
 		png_image_free(&img);
 		return 1;
 	}

@@ -27,6 +27,7 @@ public:
 	void load_color_table(const t_palet palet, bool convert_palet);
 	void draw_image8(const byte* s, int cx_s, int cy_s, CDC* pDC, int x_d, int y_d);
 	void draw_image24(const byte* s, int cx_s, int cy_s, CDC* pDC, int x_d, int y_d);
+	void draw_image32(const byte* s, int cx_s, int cy_s, CDC* pDC, int x_d, int y_d);
 	void draw_info(string n, string d);
 	// void set_game(t_game);
 	void open_f(int id, Cmix_file& mix_f, t_game game, t_palet palet);

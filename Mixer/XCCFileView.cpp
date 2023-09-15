@@ -138,6 +138,45 @@ void CXCCFileView::draw_image24(const byte* s, int cx_s, int cy_s, CDC* pDC, int
 	m_x = max(m_x, x_d + cx_s);
 }
 
+void CXCCFileView::draw_image32(const byte* s, int cx_s, int cy_s, CDC* pDC, int x_d, int y_d)
+{
+	if (!CRect().IntersectRect(m_clip_rect, CRect(CPoint(x_d, y_d), CSize(cx_s, cy_s))))
+		return;
+	CDC mem_dc;
+	mem_dc.CreateCompatibleDC(pDC);
+	void* old_bitmap;
+	{
+		BITMAPINFO bmi;
+		ZeroMemory(&bmi, sizeof(BITMAPINFO));
+		bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+		bmi.bmiHeader.biWidth = cx_s;
+		bmi.bmiHeader.biHeight = -cy_s;
+		bmi.bmiHeader.biPlanes = 1;
+		bmi.bmiHeader.biBitCount = 32;
+		bmi.bmiHeader.biCompression = BI_RGB;
+		bmi.bmiHeader.biSizeImage = bmi.bmiHeader.biWidth * -bmi.bmiHeader.biHeight * (bmi.bmiHeader.biBitCount >> 3);
+		mh_dib = CreateDIBSection(*pDC, &bmi, DIB_RGB_COLORS, reinterpret_cast<void**>(&mp_dib), 0, 0);
+	}
+	old_bitmap = mem_dc.SelectObject(mh_dib);
+	const byte* r = s;
+	for (int y = 0; y < cy_s; y++)
+	{
+		for (int x = 0; x < cx_s; x++)
+		{
+			t_palet32bgr_entry v;
+			v.r = *s++;
+			v.g = *s++;
+			v.b = *s++;
+			v.a = *s++;
+			mp_dib[x + cx_s * y] = v.v;
+		}
+	}
+	pDC->BitBlt(x_d, y_d, cx_s, cy_s, &mem_dc, 0, 0, SRCCOPY);
+	mem_dc.SelectObject(old_bitmap);
+	DeleteObject(mh_dib);
+	m_x = max(m_x, x_d + cx_s);
+}
+
 static CMainFrame* GetMainFrame()
 {
 	return reinterpret_cast<CMainFrame*>(AfxGetMainWnd());
@@ -433,13 +472,21 @@ void CXCCFileView::OnDraw(CDC* pDC)
 					draw_info("Bits/pixel:", n(8 * image.cb_pixel()));
 					draw_info("Size:", n(cx) + " x " + n(cy));
 					m_y += m_y_inc;
-					if (image.cb_pixel() == 1)
+					switch (image.cb_pixel())
 					{
+					case 1:
 						load_color_table(image.palet(), false);
 						draw_image8(image.image(), cx, cy, pDC, 0, m_y);
-					}
-					else
+						break;
+					case 3:
 						draw_image24(image.image(), cx, cy, pDC, 0, m_y);
+						break;
+					case 4:
+						draw_image32(image.image(), cx, cy, pDC, 0, m_y);
+						break;
+					default:
+						break;
+					}
 					m_y += cy + m_y_inc;
 				}
 				break;
