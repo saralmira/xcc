@@ -15,5 +15,5 @@ public:
 	}
 };
 
-int png_file_write(Cvirtual_file& f, const byte* image, const t_palet_entry* palet, int cx, int cy);
-int png_file_write(const string& name, const byte* image, const t_palet_entry* palet, int cx, int cy);
+int png_file_write(Cvirtual_file& f, const byte* image, const t_palet_entry* palet, int cx, int cy, int pixel);
+int png_file_write(const string& name, const byte* image, const t_palet_entry* palet, int cx, int cy, int pixel);

@@ -5,6 +5,7 @@
 #include "XCCFileView.h"
 #include "XCC MixerDoc.h"
 #include "XCC MixerView.h"
+#include "XSE_dlg.h"
 #include "XSTE_dlg.h"
 #include "resource.h"
 
@@ -1266,7 +1267,7 @@ static int copy_as_image(Cvideo_decoder* v, string fname, t_file_type ft)
 	{
 		v->decode(frame.write_start(v->cb_image()));
 		t.set_title(Cfname(fname).get_ftitle() + " " + nwzl(4, i));
-		if (int error = image_file_write(t, ft, frame.data(), palet, v->cx(), v->cy()))
+		if (int error = image_file_write(t, ft, frame.data(), palet, v->cx(), v->cy(), v->cb_pixel()))
 			return error;
 	}
 	delete v;
@@ -2767,6 +2768,29 @@ string CXCCMixerView::report() const
 	return "<table border=1 width=100%>" + page + "</table>";
 }
 
+void CXCCMixerView::extract_open_audio_pak(const string& bag, const string& idx) const
+{
+	string bag_path = m_dir + bag;
+	string idx_path = m_dir + idx;
+	if (m_mix_f && (!Cfname(bag_path).exists() || !Cfname(idx_path).exists()))
+	{
+		int idx_id, bag_id;
+		idx_id = Cmix_file::get_id(game_ra2_yr, idx);
+		bag_id = Cmix_file::get_id(game_ra2_yr, bag);
+		Ccc_file f_bag(false);
+		if (!open_f_id(f_bag, bag_id))
+			f_bag.extract(bag_path);
+		Ccc_file f_idx(false);
+		if (!open_f_id(f_idx, idx_id))
+			f_idx.extract(idx_path);
+	}
+
+	CXSE_dlg dlg(game_ra2_yr);
+	dlg.bag_file(bag_path);
+	dlg.idx_file(idx_path);
+	dlg.DoModal();
+}
+
 void CXCCMixerView::open_item(int id)
 {
 	const t_index_entry& index = find_ref(m_index, id);
@@ -2878,6 +2902,20 @@ void CXCCMixerView::open_item(int id)
 			CXSTE_dlg dlg2(game_unknown);
 			dlg2.open(m_dir + index.name);
 			dlg2.DoModal();
+			break;
+		}
+	case ft_unknown:
+		{
+			Cfname unknown_file(index.name);
+			t_index_entry* ptr_entry;
+			if (unknown_file.get_fext() == ".bag")
+			{
+				extract_open_audio_pak(unknown_file, unknown_file.get_ftitle() + ".idx");
+			}
+			else if (unknown_file.get_fext() == ".idx")
+			{
+				extract_open_audio_pak(unknown_file.get_ftitle() + ".bag", unknown_file);
+			}
 			break;
 		}
 	}

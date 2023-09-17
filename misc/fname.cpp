@@ -134,6 +134,11 @@ const Cfname& Cfname::operator=(string_view s)
 	return *this;
 }
 
+const Cfname& Cfname::operator=(const string& s)
+{
+	return operator=(string_view(s));
+}
+
 string operator+(const string& a, const Cfname& b)
 {
 	return a + static_cast<string>(b);

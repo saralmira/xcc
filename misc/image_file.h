@@ -25,6 +25,6 @@ public:
 	}
 };
 
-int image_file_write(Cvirtual_file&, t_file_type, const byte* image, const t_palet_entry*, int cx, int cy);
-Cvirtual_file image_file_write(t_file_type, const byte* image, const t_palet_entry*, int cx, int cy);
-int image_file_write(const string& name, t_file_type, const byte* image, const t_palet_entry*, int cx, int cy);
+int image_file_write(Cvirtual_file&, t_file_type, const byte* image, const t_palet_entry*, int cx, int cy, int pixel = 3);
+Cvirtual_file image_file_write(t_file_type, const byte* image, const t_palet_entry*, int cx, int cy, int pixel = 3);
+int image_file_write(const string& name, t_file_type, const byte* image, const t_palet_entry*, int cx, int cy, int pixel = 3);

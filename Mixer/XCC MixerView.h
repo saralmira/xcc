@@ -99,6 +99,7 @@ public:
 	~CXCCMixerView();
 
 protected:
+	void extract_open_audio_pak(const string& bag, const string& idx) const;
 
 // Generated message map functions
 protected:

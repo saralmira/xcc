@@ -123,17 +123,17 @@ int Cvirtual_image::load(const string& fname)
 
 int Cvirtual_image::save(Cvirtual_file& f, t_file_type ft) const
 {
-	return image_file_write(f, ft, image(), palet(), m_cx, m_cy);
+	return image_file_write(f, ft, image(), palet(), m_cx, m_cy, mcb_pixel);
 }
 
 Cvirtual_file Cvirtual_image::save(t_file_type ft) const
 {
-	return image_file_write(ft, image(), palet(), m_cx, m_cy);
+	return image_file_write(ft, image(), palet(), m_cx, m_cy, mcb_pixel);
 }
 
 int Cvirtual_image::save(const string& fname, t_file_type ft) const
 {
-	return image_file_write(fname, ft, image(), palet(), m_cx, m_cy);
+	return image_file_write(fname, ft, image(), palet(), m_cx, m_cy, mcb_pixel);
 }
 
 void Cvirtual_image::swap_rb()

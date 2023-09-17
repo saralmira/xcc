@@ -42,16 +42,16 @@ int Cpcx_file_write::write_palet(const t_palet palet)
 	return write(palet, sizeof(t_palet));
 }
 
-Cvirtual_binary pcx_file_write(const byte* image, const t_palet_entry* palet, int cx, int cy)
+Cvirtual_binary pcx_file_write(const byte* image, const t_palet_entry* palet, int cx, int cy, int planes)
 {
 	Cvirtual_file f;
-	pcx_file_write(f, image, palet, cx, cy);
+	pcx_file_write(f, image, palet, cx, cy, planes);
 	return f.read();
 }
 
-void pcx_file_write(Cvirtual_file& f, const byte* image, const t_palet_entry* palet, int cx, int cy)
+void pcx_file_write(Cvirtual_file& f, const byte* image, const t_palet_entry* palet, int cx, int cy, int planes)
 {
-	int c_planes = palet ? 1 : 3;
+	int c_planes = palet ? 1 : planes;
 	t_pcx_header header;
 	header.manufacturer = 10;
 	header.version = 5;
@@ -73,7 +73,7 @@ void pcx_file_write(Cvirtual_file& f, const byte* image, const t_palet_entry* pa
 		f.write(palet, sizeof(t_palet));
 }
 
-int pcx_file_write(const string& name, const byte* image, const t_palet_entry* palet, int cx, int cy)
+int pcx_file_write(const string& name, const byte* image, const t_palet_entry* palet, int cx, int cy, int planes)
 {
 	Cpcx_file_write f;
 	int error = f.open_write(name);
@@ -85,7 +85,7 @@ int pcx_file_write(const string& name, const byte* image, const t_palet_entry* p
 		if (!error)
 		{
 			byte* d = new byte[2 * cx * cy * c_planes];
-			error = f.write_image(d, pcx_encode(image, d, cx, cy, c_planes));
+			error = f.write_image(d, pcx_encode(image, d, cx, cy, palet ? 1 : planes));
 			delete[] d;
 			if (!error && palet)
 				error = f.write_palet(palet);

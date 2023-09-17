@@ -134,9 +134,9 @@ int Cmix_file_rd::post_open()
 					entry_discards.push_back(i);
 				}
 			}
-			for (auto i_e : entry_discards)
+			for (int i = entry_discards.size() - 1; i >= 0; --i)
 			{
-				m_index.erase(m_index.begin() + i_e);
+				m_index.erase(m_index.begin() + entry_discards[i]);
 				c_files = --header.c_files;
 			}
 			m_index.resize(c_files);

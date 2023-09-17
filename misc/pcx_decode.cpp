@@ -82,7 +82,7 @@ static void write_v(byte v, int count, byte*& d)
 int pcx_encode(const byte* s, byte* d, int _cx, int cy, int c_planes)
 {
 	byte* t = const_cast<byte*>(s);
-	if (c_planes == 3)
+	if (c_planes >= 3) // 3 or 4
 	{
 		t = new byte[3 * _cx * cy];
 		const byte* r = s;
@@ -96,6 +96,7 @@ int pcx_encode(const byte* s, byte* d, int _cx, int cy, int c_planes)
 				*write_r++ = *r++;
 				*write_g++ = *r++;
 				*write_b++ = *r++;
+				if (c_planes == 4) r++;
 			}
 			write_r += 2 * _cx;
 			write_g += 2 * _cx;
@@ -103,6 +104,7 @@ int pcx_encode(const byte* s, byte* d, int _cx, int cy, int c_planes)
 		}
 		cy *= 3;
 	}
+
 	_cx--;
 	const byte* r = t;
 	byte* w = d;
@@ -125,7 +127,7 @@ int pcx_encode(const byte* s, byte* d, int _cx, int cy, int c_planes)
 		}
 		write_v(last, count, w);
 	}
-	if (c_planes == 3)
+	if (c_planes >= 3)
 		delete[] t;
 	return w - d;
 }

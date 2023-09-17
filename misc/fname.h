@@ -13,6 +13,7 @@ private:
 	string ext;
 public:
 	const Cfname& operator=(string_view);
+	const Cfname& operator=(const string&);
 	bool exists() const;
 	void make_path();
 	void use_default_ext(string_view);

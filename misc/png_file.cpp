@@ -126,10 +126,10 @@ int Cpng_file::decode(Cvirtual_image& d) const
 	return error;
 }
 
-int png_file_write(Cvirtual_file& f, const byte* image, const t_palet_entry* palet, int cx, int cy)
+int png_file_write(Cvirtual_file& f, const byte* image, const t_palet_entry* palet, int cx, int cy, int pixel)
 {
 	string temp_fname = get_temp_fname();
-	int error = png_file_write(temp_fname, image, palet, cx, cy);
+	int error = png_file_write(temp_fname, image, palet, cx, cy, pixel);
 	if (!error)
 	{
 		error = f.load(temp_fname);
@@ -138,7 +138,7 @@ int png_file_write(Cvirtual_file& f, const byte* image, const t_palet_entry* pal
 	return error;
 }
 
-int png_file_write(const string& name, const byte* image, const t_palet_entry* palet, int cx, int cy)
+int png_file_write(const string& name, const byte* image, const t_palet_entry* palet, int cx, int cy, int pixel)
 {
 	png_image img;
 	memset(&img, 0, sizeof(img));
@@ -153,8 +153,8 @@ int png_file_write(const string& name, const byte* image, const t_palet_entry* p
 	}
 	else
 	{
-		img.format = PNG_FORMAT_RGB;
-		return !png_image_write_to_file(&img, name.c_str(), false, image, 3 * cx, NULL);
+		img.format = pixel == 3 ? PNG_FORMAT_RGB : PNG_FORMAT_RGBA;
+		return !png_image_write_to_file(&img, name.c_str(), false, image, pixel * cx, NULL);
 	}
 
 	// old

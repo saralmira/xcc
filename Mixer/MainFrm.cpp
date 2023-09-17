@@ -794,12 +794,19 @@ void CMainFrame::OnLaunchXSE_Open()
 	CFileDialog dlg0(true, "bag", NULL, OFN_HIDEREADONLY | OFN_FILEMUSTEXIST, "BAG files (*.bag)|*.bag|", this);
 	if (IDOK != dlg0.DoModal())
 		return;
-	CFileDialog dlg1(true, "idx", NULL, OFN_HIDEREADONLY | OFN_FILEMUSTEXIST, "IDX files (*.idx)|*.idx|", this);
-	if (IDOK != dlg1.DoModal())
-		return;
+	Cfname bag_path(string(dlg0.GetPathName()));
+	Cfname idx_path(bag_path.get_path() + bag_path.get_ftitle() + ".idx");
+	if (!idx_path.exists())
+	{
+		CFileDialog dlg1(true, "idx", NULL, OFN_HIDEREADONLY | OFN_FILEMUSTEXIST, "IDX files (*.idx)|*.idx|", this);
+		if (IDOK != dlg1.DoModal())
+			return;
+		idx_path = string(dlg1.GetPathName());
+	}
+	
 	CXSE_dlg dlg2(game_ra2_yr);
-	dlg2.bag_file(string(dlg0.GetPathName()));
-	dlg2.idx_file(string(dlg1.GetPathName()));
+	dlg2.bag_file(bag_path.get_all());
+	dlg2.idx_file(idx_path.get_all());
 	dlg2.DoModal();
 }
 
