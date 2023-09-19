@@ -98,16 +98,18 @@ int Cmix_file_rd::post_open()
 				auto body_size = get_size() - 92 - cb_f - (m_has_checksum ? 20 : 0);
 				for (int i = 0; i < c_files; i++)
 				{
-					if (m_index[i].offset < 0 || m_index[i].size < 0 || (m_index[i].offset + m_index[i].size) > body_size)
+					if (m_index[i].offset < 0 || m_index[i].offset > body_size || m_index[i].size < 0 || m_index[i].size > body_size ||
+						 (m_index[i].offset + m_index[i].size) > body_size)
 					{
 						entry_discards.push_back(i);
 					}
 				}
-				for (auto i_e : entry_discards)
+				for (int i = entry_discards.size() - 1; i >= 0; --i)
 				{
-					m_index.erase(m_index.begin() + i_e);
+					m_index.erase(m_index.begin() + entry_discards[i]);
 					c_files = --header.c_files;
 				}
+				m_index.resize(c_files);
 				for (int i = 0; i < c_files; i++)
 				{
 					if (m_index[i].offset & 0xf)
@@ -129,7 +131,8 @@ int Cmix_file_rd::post_open()
 			auto body_size = mix_size - (sizeof(t_mix_header) + cb_index) - (m_has_checksum ? 20 : 0);
 			for (int i = 0; i < c_files; i++)
 			{
-				if (m_index[i].offset < 0 || m_index[i].size < 0 || (m_index[i].offset + m_index[i].size) > body_size)
+				if (m_index[i].offset < 0 || m_index[i].offset > body_size || m_index[i].size < 0 || m_index[i].size > body_size ||
+					 (m_index[i].offset + m_index[i].size) > body_size)
 				{
 					entry_discards.push_back(i);
 				}
@@ -187,7 +190,7 @@ int Cmix_file_rd::post_open()
 				}
 			}
 		}
-		if (vdata().size() == get_size())
+		if (vdata().size() == get_size() && m_index.size())
 		{
 			int crc = compute_crc(&m_index[0], get_c_files() * sizeof(t_mix_index_entry));
 			Cvirtual_binary s = mix_cache::get_data(crc);
