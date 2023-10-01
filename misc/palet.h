@@ -19,6 +19,21 @@ struct t_palet24bgr_entry
 	byte b, g, r;
 };
 
+struct t_palet32_entry
+{
+	byte r, g, b, a;
+};
+
+struct t_palet48_entry
+{
+	unsigned short r, g, b;
+};
+
+struct t_palet64_entry
+{
+	unsigned short r, g, b, a;
+};
+
 union t_palet32entry
 {
 	struct

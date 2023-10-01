@@ -43,6 +43,7 @@
 #include <wsa_dune2_file.h>
 #include <wsa_file.h>
 #include <csf_file.h>
+#include <png_file.h>
 
 IMPLEMENT_DYNCREATE(CXCCFileView, CScrollView)
 
@@ -168,6 +169,83 @@ void CXCCFileView::draw_image32(const byte* s, int cx_s, int cy_s, CDC* pDC, int
 			v.g = *s++;
 			v.b = *s++;
 			v.a = *s++;
+			mp_dib[x + cx_s * y] = v.v;
+		}
+	}
+	pDC->BitBlt(x_d, y_d, cx_s, cy_s, &mem_dc, 0, 0, SRCCOPY);
+	mem_dc.SelectObject(old_bitmap);
+	DeleteObject(mh_dib);
+	m_x = max(m_x, x_d + cx_s);
+}
+
+void CXCCFileView::draw_image48(const byte* s, int cx_s, int cy_s, CDC* pDC, int x_d, int y_d)
+{
+	if (!CRect().IntersectRect(m_clip_rect, CRect(CPoint(x_d, y_d), CSize(cx_s, cy_s))))
+		return;
+	CDC mem_dc;
+	mem_dc.CreateCompatibleDC(pDC);
+	void* old_bitmap;
+	{
+		BITMAPINFO bmi;
+		ZeroMemory(&bmi, sizeof(BITMAPINFO));
+		bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+		bmi.bmiHeader.biWidth = cx_s;
+		bmi.bmiHeader.biHeight = -cy_s;
+		bmi.bmiHeader.biPlanes = 1;
+		bmi.bmiHeader.biBitCount = 32;
+		bmi.bmiHeader.biCompression = BI_RGB;
+		bmi.bmiHeader.biSizeImage = bmi.bmiHeader.biWidth * -bmi.bmiHeader.biHeight * (bmi.bmiHeader.biBitCount >> 3);
+		mh_dib = CreateDIBSection(*pDC, &bmi, DIB_RGB_COLORS, reinterpret_cast<void**>(&mp_dib), 0, 0);
+	}
+	old_bitmap = mem_dc.SelectObject(mh_dib);
+	auto r = reinterpret_cast<const unsigned short*>(s);
+	for (int y = 0; y < cy_s; y++)
+	{
+		for (int x = 0; x < cx_s; x++)
+		{
+			t_palet32bgr_entry v;
+			v.r = linear2sRGB(*r++);
+			v.g = linear2sRGB(*r++);
+			v.b = linear2sRGB(*r++);
+			mp_dib[x + cx_s * y] = v.v;
+		}
+	}
+	pDC->BitBlt(x_d, y_d, cx_s, cy_s, &mem_dc, 0, 0, SRCCOPY);
+	mem_dc.SelectObject(old_bitmap);
+	DeleteObject(mh_dib);
+	m_x = max(m_x, x_d + cx_s);
+}
+
+void CXCCFileView::draw_image64(const byte* s, int cx_s, int cy_s, CDC* pDC, int x_d, int y_d)
+{
+	if (!CRect().IntersectRect(m_clip_rect, CRect(CPoint(x_d, y_d), CSize(cx_s, cy_s))))
+		return;
+	CDC mem_dc;
+	mem_dc.CreateCompatibleDC(pDC);
+	void* old_bitmap;
+	{
+		BITMAPINFO bmi;
+		ZeroMemory(&bmi, sizeof(BITMAPINFO));
+		bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+		bmi.bmiHeader.biWidth = cx_s;
+		bmi.bmiHeader.biHeight = -cy_s;
+		bmi.bmiHeader.biPlanes = 1;
+		bmi.bmiHeader.biBitCount = 32;
+		bmi.bmiHeader.biCompression = BI_RGB;
+		bmi.bmiHeader.biSizeImage = bmi.bmiHeader.biWidth * -bmi.bmiHeader.biHeight * (bmi.bmiHeader.biBitCount >> 3);
+		mh_dib = CreateDIBSection(*pDC, &bmi, DIB_RGB_COLORS, reinterpret_cast<void**>(&mp_dib), 0, 0);
+	}
+	old_bitmap = mem_dc.SelectObject(mh_dib);
+	auto r = reinterpret_cast<const unsigned short*>(s);
+	for (int y = 0; y < cy_s; y++)
+	{
+		for (int x = 0; x < cx_s; x++)
+		{
+			t_palet32bgr_entry v;
+			v.r = linear2sRGB(*r++);
+			v.g = linear2sRGB(*r++);
+			v.b = linear2sRGB(*r++);
+			v.a = linear2sRGB(*r++);
 			mp_dib[x + cx_s * y] = v.v;
 		}
 	}
@@ -483,6 +561,12 @@ void CXCCFileView::OnDraw(CDC* pDC)
 						break;
 					case 4:
 						draw_image32(image.image(), cx, cy, pDC, 0, m_y);
+						break;
+					case 6:
+						draw_image48(image.image(), cx, cy, pDC, 0, m_y);
+						break;
+					case 8:
+						draw_image64(image.image(), cx, cy, pDC, 0, m_y);
 						break;
 					default:
 						break;

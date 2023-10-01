@@ -3,6 +3,7 @@
 
 #include <jpeglib.h>
 #include "fname.h"
+#include "png_file.h"
 
 class Csource_manager
 {
@@ -86,10 +87,10 @@ int Cjpeg_file::decode(Cvirtual_image& d) const
 	return 0;
 }
 
-int jpeg_file_write(Cvirtual_file& f, const byte* image, const t_palet_entry* palet, int cx, int cy, int q)
+int jpeg_file_write(Cvirtual_file& f, const byte* image, const t_palet_entry* palet, int cx, int cy, int q, int pixel)
 {
 	string temp_fname = get_temp_fname();
-	int error = jpeg_file_write(temp_fname, image, palet, cx, cy, q);
+	int error = jpeg_file_write(temp_fname, image, palet, cx, cy, q, pixel);
 	if (!error)
 	{
 		Cvirtual_binary s;
@@ -99,7 +100,7 @@ int jpeg_file_write(Cvirtual_file& f, const byte* image, const t_palet_entry* pa
 	return error;
 }
 
-int jpeg_file_write(const string& name, const byte* image, const t_palet_entry* palet, int cx, int cy, int q)
+int jpeg_file_write(const string& name, const byte* image, const t_palet_entry* palet, int cx, int cy, int q, int pixel)
 {
 	t_palet_entry* s;
 	if (palet)
@@ -113,8 +114,8 @@ int jpeg_file_write(const string& name, const byte* image, const t_palet_entry* 
 			*w++ = palet[*r++];
 		}
 	}
-	else
-		s = const_cast<t_palet_entry*>(reinterpret_cast<const t_palet_entry*>(image));
+	// else
+	// 	s = const_cast<t_palet_entry*>(reinterpret_cast<const t_palet_entry*>(image));
 	jpeg_compress_struct cinfo;
 	jpeg_error_mgr jerr;
 
@@ -134,13 +135,74 @@ int jpeg_file_write(const string& name, const byte* image, const t_palet_entry* 
 		jpeg_set_quality(&cinfo, q, true);
 	jpeg_start_compress(&cinfo, TRUE);
 
-	const t_palet_entry* r = s;
-	while (cinfo.next_scanline < cinfo.image_height) 
+	if (palet || pixel == 3)
 	{
-		jpeg_write_scanlines(&cinfo, const_cast<byte**>(reinterpret_cast<const byte**>(&r)), 1);
-		r += cx;
+		auto r = reinterpret_cast<const t_palet_entry*>(image);
+		while (cinfo.next_scanline < cinfo.image_height)
+		{
+			jpeg_write_scanlines(&cinfo, const_cast<byte**>(reinterpret_cast<const byte**>(&r)), 1);
+			r += cx;
+		}
 	}
-	
+	else if (pixel > 3)
+	{
+		byte* tmp_line = new byte[3 * cx];
+		switch (pixel)
+		{
+		case 4:
+		{
+			auto r = reinterpret_cast<const t_palet32_entry*>(image);
+			while (cinfo.next_scanline < cinfo.image_height)
+			{
+				for (int i = 0; i < cx; ++i)
+				{
+					memcpy(tmp_line + 3 * i, r++, 3);
+				}
+				auto tmp_line_p = tmp_line;
+				jpeg_write_scanlines(&cinfo, reinterpret_cast<byte**>(&tmp_line_p), 1);
+			}
+			break;
+		}
+		case 6:
+		{
+			auto r48 = reinterpret_cast<const t_palet48_entry*>(image);
+			while (cinfo.next_scanline < cinfo.image_height)
+			{
+				for (int i = 0; i < 3 * cx; )
+				{
+					tmp_line[i++] = linear2sRGB(r48->r);
+					tmp_line[i++] = linear2sRGB(r48->g);
+					tmp_line[i++] = linear2sRGB(r48->b);
+					r48++;
+				}
+				auto tmp_line_p = tmp_line;
+				jpeg_write_scanlines(&cinfo, reinterpret_cast<byte**>(&tmp_line_p), 1);
+			}
+			break;
+		}
+		case 8:
+		{
+			auto r64 = reinterpret_cast<const t_palet64_entry*>(image);
+			while (cinfo.next_scanline < cinfo.image_height)
+			{
+				for (int i = 0; i < 3 * cx; )
+				{
+					tmp_line[i++] = linear2sRGB(r64->r);
+					tmp_line[i++] = linear2sRGB(r64->g);
+					tmp_line[i++] = linear2sRGB(r64->b);
+					r64++;
+				}
+				auto tmp_line_p = tmp_line;
+				jpeg_write_scanlines(&cinfo, reinterpret_cast<byte**>(&tmp_line_p), 1);
+			}
+			break;
+		}
+		default:
+			break;
+		}
+		delete[] tmp_line;
+	}
+
 	jpeg_finish_compress(&cinfo);
 	jpeg_destroy_compress(&cinfo);
 

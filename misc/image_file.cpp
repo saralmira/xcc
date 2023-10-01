@@ -11,7 +11,7 @@ int image_file_write(Cvirtual_file& f, t_file_type ft, const byte* image, const 
 	switch (ft)
 	{
 	case ft_jpeg:
-		return jpeg_file_write(f, image, palet, cx, cy);
+		return jpeg_file_write(f, image, palet, cx, cy, -1, pixel);
 	case ft_pcx:
 		pcx_file_write(f, image, palet, cx, cy, pixel);
 		return 0;
@@ -38,7 +38,7 @@ int image_file_write(const string& name, t_file_type ft, const byte* image, cons
 	switch (ft)
 	{
 	case ft_jpeg:
-		return jpeg_file_write(name, image, palet, cx, cy);
+		return jpeg_file_write(name, image, palet, cx, cy, -1, pixel);
 	case ft_pcx:
 		return pcx_file_write(name, image, palet, cx, cy, pixel);
 	case ft_tga:

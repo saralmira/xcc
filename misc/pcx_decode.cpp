@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include <memory>
 #include <pcx_decode.h>
+#include <png_file.h>
 
 void pcx_decode(const byte* s, byte* d, const t_pcx_header& header)
 {
@@ -82,25 +83,45 @@ static void write_v(byte v, int count, byte*& d)
 int pcx_encode(const byte* s, byte* d, int _cx, int cy, int c_planes)
 {
 	byte* t = const_cast<byte*>(s);
-	if (c_planes >= 3) // 3 or 4
+	if (c_planes >= 3)
 	{
 		t = new byte[3 * _cx * cy];
-		const byte* r = s;
 		byte* write_r = t;
 		byte* write_g = t + _cx;
 		byte* write_b = t + 2 * _cx;
-		for (int y = 0; y < cy; y++) 
+		if (c_planes >= 6) // 6 or 8
 		{
-			for (int x = 0; x < _cx; x++) 
+			auto r = reinterpret_cast<const unsigned short*>(s);
+			for (int y = 0; y < cy; y++)
 			{
-				*write_r++ = *r++;
-				*write_g++ = *r++;
-				*write_b++ = *r++;
-				if (c_planes == 4) r++;
+				for (int x = 0; x < _cx; x++)
+				{
+					*write_r++ = linear2sRGB(*r++);
+					*write_g++ = linear2sRGB(*r++);
+					*write_b++ = linear2sRGB(*r++);
+					if (c_planes == 8) r++;
+				}
+				write_r += 2 * _cx;
+				write_g += 2 * _cx;
+				write_b += 2 * _cx;
 			}
-			write_r += 2 * _cx;
-			write_g += 2 * _cx;
-			write_b += 2 * _cx;
+		}
+		else  // 3 or 4
+		{
+			auto r = s;
+			for (int y = 0; y < cy; y++)
+			{
+				for (int x = 0; x < _cx; x++)
+				{
+					*write_r++ = *r++;
+					*write_g++ = *r++;
+					*write_b++ = *r++;
+					if (c_planes == 4) r++;
+				}
+				write_r += 2 * _cx;
+				write_g += 2 * _cx;
+				write_b += 2 * _cx;
+			}
 		}
 		cy *= 3;
 	}

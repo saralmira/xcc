@@ -39,6 +39,16 @@ int Cpng_file::decode(Cvirtual_image& d) const
 			return 1;
 		d.load(t, cx, cy, 4, NULL);
 		return 0;
+	case PNG_FORMAT_LINEAR_RGB:
+		if (!png_image_finish_read(&img, NULL, t.write_start(3 * 2 * cx * cy), 3 * cx, NULL))
+			return 1;
+		d.load(t, cx, cy, 3 * 2, NULL);
+		return 0;
+	case PNG_FORMAT_LINEAR_RGB_ALPHA:
+		if (!png_image_finish_read(&img, NULL, t.write_start(4 * 2 * cx * cy), 4 * cx, NULL))
+			return 1;
+		d.load(t, cx, cy, 4 * 2, NULL);
+		return 0;
 	default:
 		png_image_free(&img);
 		return 1;
@@ -153,8 +163,29 @@ int png_file_write(const string& name, const byte* image, const t_palet_entry* p
 	}
 	else
 	{
-		img.format = pixel == 3 ? PNG_FORMAT_RGB : PNG_FORMAT_RGBA;
-		return !png_image_write_to_file(&img, name.c_str(), false, image, pixel * cx, NULL);
+		int row_stride = pixel * cx;
+		switch (pixel)
+		{
+		case 3:
+			img.format = PNG_FORMAT_RGB;
+			break;
+		case 4:
+			img.format = PNG_FORMAT_RGBA;
+			break;
+		case 6:
+			img.format = PNG_FORMAT_LINEAR_RGB;
+			img.flags = PNG_IMAGE_FLAG_16BIT_sRGB;
+			row_stride >>= 1;
+			break;
+		case 8:
+			img.format = PNG_FORMAT_LINEAR_RGB_ALPHA;
+			img.flags = PNG_IMAGE_FLAG_16BIT_sRGB;
+			row_stride >>= 1;
+			break;
+		default:
+			return 1;
+		}
+		return !png_image_write_to_file(&img, name.c_str(), false, image, row_stride, NULL);
 	}
 
 	// old

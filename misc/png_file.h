@@ -17,3 +17,11 @@ public:
 
 int png_file_write(Cvirtual_file& f, const byte* image, const t_palet_entry* palet, int cx, int cy, int pixel);
 int png_file_write(const string& name, const byte* image, const t_palet_entry* palet, int cx, int cy, int pixel);
+
+
+inline byte linear2sRGB(const unsigned short l)
+{
+	double lx = l / static_cast<double>(0xffff);
+	return static_cast<byte>(lx * 0xff);
+	// return static_cast<byte>((lx < 0.0031308 ? lx * 12.92 : (1.055 * pow(lx, (double)1.0 / 2.4) - 0.055)) * 0xff);
+}
