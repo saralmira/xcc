@@ -103,6 +103,7 @@ CMainFrame::CMainFrame()
 {
 	m_game = static_cast<t_game>(-1);
 	m_lists_initialized = GetAsyncKeyState(VK_SHIFT) < 0;
+	m_tmp_palet_set = false;
 
 	m_combine_shadows = AfxGetApp()->GetProfileInt(m_reg_key, "combine_shadows", false);
 	m_enable_compression = AfxGetApp()->GetProfileInt(m_reg_key, "enable_compression", true);
@@ -487,7 +488,18 @@ const t_palet_entry* CMainFrame::get_game_palet(t_game game)
 const t_palet_entry* CMainFrame::get_pal_data()
 {
 	initialize_lists();
-	return m_palet_i == -1 ? NULL : m_pal_list[m_palet_i].palet;
+	return m_palet_i == -1 ?
+		(m_tmp_palet_set ? m_tmp_palet : NULL) :
+		m_pal_list[m_palet_i].palet;
+}
+
+void CMainFrame::load_tmp_pal(const t_palet pal)
+{
+	set_palet(-1);
+
+	memcpy(m_tmp_palet, pal, sizeof(t_palet));
+	m_tmp_palet_set = true;
+	set_msg("temporary palet selected");
 }
 
 int CMainFrame::get_vxl_mode() const
@@ -1059,6 +1071,9 @@ void CMainFrame::OnViewPaletSelect()
 
 void CMainFrame::set_palet(int id)
 {
+	if (id != -1)
+		m_tmp_palet_set = false;
+
 	if (m_palet_i == id)
 		return;
 	m_palet_i = id;

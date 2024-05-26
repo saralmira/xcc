@@ -71,6 +71,7 @@ public:
 	string get_mix_name(int i) const;
 	const t_palet_entry* get_game_palet(t_game game);
 	const t_palet_entry* get_pal_data();
+	void load_tmp_pal(const t_palet pal);
 	int get_vxl_mode() const;
 	void set_msg(const string& s);
 	virtual ~CMainFrame();
@@ -124,9 +125,11 @@ protected:
 	t_palet m_td_palet;
 	t_palet m_ra_palet;
 	t_palet m_ts_palet;
+	t_palet m_tmp_palet;
 	int m_palet_i = -1;
 	int m_vxl_mode = 0;
 	bool m_lists_initialized;
+	bool m_tmp_palet_set;
 	int m_mix_i[game_unknown] = { 0 };
 	int m_pal_i[game_unknown] = { 0 };
 	t_mix_list m_mix_list;

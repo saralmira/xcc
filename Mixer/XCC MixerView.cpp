@@ -2376,6 +2376,7 @@ void CXCCMixerView::OnUpdatePopupOpen(CCmdUI* pCmdUI)
 		case ft_shp_ts:
 		case ft_vqa:
 		case ft_wsa:
+		case ft_pal:
 			pCmdUI->Enable(true);
 			return;
 		}
@@ -2904,6 +2905,13 @@ void CXCCMixerView::open_item(int id)
 			dlg2.DoModal();
 			break;
 		}
+	case ft_pal:
+	  {
+		  Cpal_file f;
+		  f.load(get_vdata_id(id));
+			GetMainFrame()->load_tmp_pal(f.get_palet());
+		  break;
+	  }
 	case ft_unknown:
 		{
 			Cfname unknown_file(index.name);
