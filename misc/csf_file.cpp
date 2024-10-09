@@ -77,22 +77,41 @@ int Ccsf_file::post_open()
 	const byte* r = data() + sizeof(t_csf_header);
 	for (int i = 0; i < header().count1; i++)
 	{
-		read_int(r);
-		int flags = read_int(r);
-		string name = read_string(r);
-		if (flags & 1)
-		{
-			bool has_extra_value = read_int(r) == csf_string_w_id;
-			wstring value = read_wstring(r);
-			string extra_value;
-			if (has_extra_value)
-				extra_value = read_string(r);
-			set_value(name, value, extra_value);
-		}
-		else
-			set_value(name, wstring(), string());
+		read_chunk(r);
 	}
 	return 0;
+}
+
+void Ccsf_file::read_chunk(const byte*& stm, const string* lblname)
+{
+	switch (read_int(stm))
+	{
+		case csf_label_id:
+		{
+			int num = read_int(stm);
+			string name = read_string(stm);
+
+			for (; num > 0; --num)
+				read_chunk(stm, &name);
+
+			break;
+		}
+		case csf_string_id:
+		{
+			wstring value = read_wstring(stm);
+			set_value(lblname ? *lblname : string(), value, string());
+			break;
+		}
+		case csf_string_w_id:
+		{
+			wstring value = read_wstring(stm);
+			string extra_value = read_string(stm);
+			set_value(lblname ? *lblname : string(), value, extra_value);
+			break;
+		}
+	default:
+		break;
+	}
 }
 
 string Ccsf_file::convert2string(const wstring& s)

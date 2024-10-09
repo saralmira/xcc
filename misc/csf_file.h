@@ -21,6 +21,7 @@ public:
 	static string convert2string(const wstring& s);
 	static wstring convert2wstring(const string& s);
 	Cvirtual_binary write() const;
+	void read_chunk(const byte*& stm, const string* lblname = nullptr);
 
 	bool is_valid() const
 	{
